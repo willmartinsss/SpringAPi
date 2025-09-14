@@ -1,0 +1,19 @@
+POST http://localhost:80/auth/register
+Content-Type: application/json
+
+{
+  "login": "Gabrielneves",
+  "password": "123456789",
+  "role": "Admin"
+}
+
+###
+GET http://localhost:80/api/item?id=99
+Accept: application/json
+
+###
+### GET request to example server
+GET https://examples.http-client.intellij.net/get
+    ?generated-in=IntelliJ IDEA
+
+###
