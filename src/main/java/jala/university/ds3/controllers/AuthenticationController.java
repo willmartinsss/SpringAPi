@@ -4,20 +4,21 @@ import jakarta.validation.Valid;
 import jala.university.ds3.domain.user.AuthenticationDTO;
 import jala.university.ds3.domain.user.RegisterDTO;
 import jala.university.ds3.domain.user.User;
-import jala.university.ds3.repositories.UserRepository;
+import jala.university.ds3.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Controller;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthenticationController {
-
-
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -25,26 +26,37 @@ public class AuthenticationController {
     @Autowired
     private UserRepository repository;
 
+    @Autowired(required = false)
+    private PasswordEncoder passwordEncoder;
+
     @PostMapping("/login")
-    public ResponseEntity login(@RequestBody @Valid AuthenticationDTO data){
-
-        var usernamePassword = new UsernamePasswordAuthenticationToken(data.login(), data.password());
-        var auth = this.authenticationManager.authenticate(usernamePassword);
-
-        return ResponseEntity.ok().build();
+    public ResponseEntity<?> login(@RequestBody @Valid AuthenticationDTO data) {
+        try {
+            var usernamePassword = new UsernamePasswordAuthenticationToken(data.login(), data.password());
+            this.authenticationManager.authenticate(usernamePassword);
+            // TODO: gerar e devolver JWT/token se for o caso
+            return ResponseEntity.ok().build();
+        } catch (AuthenticationException ex) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
 
     @PostMapping("/register")
-    public ResponseEntity register(@RequestBody @Valid RegisterDTO data){
+    public ResponseEntity<?> register(@RequestBody @Valid RegisterDTO data) {
 
-        if (this.repository.findByLogin(data.login()) != null) return ResponseEntity.badRequest().build();
+        Optional<User> existing = repository.findByLogin(data.login());
+        if (existing.isPresent()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Login já existe");
+        }
+        
+        if (this.passwordEncoder == null) {
+            this.passwordEncoder = new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
+        }
 
-        String encryptedPassword = new BCryptPasswordEncoder().encode(data.password());
+        String encryptedPassword = this.passwordEncoder.encode(data.password());
         User newUser = new User(data.name(), data.login(), encryptedPassword, data.role());
+        User saved = repository.save(newUser);
 
-        this.repository.save(newUser);
-
-        return ResponseEntity.ok().build();
-
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

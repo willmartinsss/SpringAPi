@@ -15,9 +15,9 @@ public class NullVerifier {
 
     //TODO ALTERAR PARA INT OU LONG
     public void userVerify(String userId) {
-        if (!userRepository.existsById(userId)) {
-            throw new GeneralExceptions("User with ID: " + userId + " was not found!", HttpStatus.NOT_FOUND);
-        }
+//        if (!userRepository.existsById(userId)) {
+//            throw new GeneralExceptions("User with ID: " + userId + " was not found!", HttpStatus.NOT_FOUND);
+//        }
     }
     
     

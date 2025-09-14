@@ -1,7 +1,7 @@
 package jala.university.ds3.services;
 
 
-import jala.university.ds3.repositories.UserRepository;
+import jala.university.ds3.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -17,6 +17,8 @@ public class AuthorizationService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByLogin(username);
+        //return userRepository.findByLogin(username);
+        return userRepository.findByLogin(username)
+                .orElseThrow(() -> new UsernameNotFoundException(username));
     }
 }
