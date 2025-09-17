@@ -1,4 +1,4 @@
-package jala.university.ds3.repository;
+package jala.university.ds3.repositories;
 
 import jala.university.ds3.domain.user.User;
 import org.springframework.stereotype.Repository;

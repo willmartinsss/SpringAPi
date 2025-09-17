@@ -1,7 +1,7 @@
 package jala.university.ds3.services;
 
 
-import jala.university.ds3.repository.UserRepository;
+import jala.university.ds3.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

@@ -4,7 +4,7 @@ import jakarta.validation.Valid;
 import jala.university.ds3.domain.user.AuthenticationDTO;
 import jala.university.ds3.domain.user.RegisterDTO;
 import jala.university.ds3.domain.user.User;
-import jala.university.ds3.repository.UserRepository;
+import jala.university.ds3.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
