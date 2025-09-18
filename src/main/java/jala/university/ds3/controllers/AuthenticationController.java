@@ -40,15 +40,15 @@ public class AuthenticationController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
-
+    
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody @Valid RegisterDTO data) {
 
         Optional<User> existing = repository.findByLogin(data.login());
         if (existing.isPresent()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Login já existe");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Login already exists!");
         }
-        
+
         if (this.passwordEncoder == null) {
             this.passwordEncoder = new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
         }
