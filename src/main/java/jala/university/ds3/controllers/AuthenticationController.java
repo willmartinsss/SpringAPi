@@ -11,9 +11,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -42,8 +44,29 @@ public class AuthenticationController {
     }
     
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody @Valid RegisterDTO data) {
-
+    public ResponseEntity<?> register(@RequestBody @Valid RegisterDTO data, org.springframework.validation.BindingResult result) {
+        if (result.hasErrors()) {
+            var errors = result.getFieldErrors().stream()
+                    .map(fieldError -> {
+                        return fieldError.getDefaultMessage();
+                    })
+                    .toList();
+            return ResponseEntity.badRequest().body(errors);
+        }
+        
+        String resolvedLogin = data.login() == null ? "" : data.login().trim().toLowerCase();
+        if (resolvedLogin == null || resolvedLogin.isEmpty() || resolvedLogin.isBlank()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invald login!");
+        }
+        
+//        Optional<User> existing = repository.findByLoginIgnoreCase(resolvedLogin);
+//        if (existing.isPresent()) {
+//            return ResponseEntity.status(HttpStatus.CONFLICT).body("Login already exists! (CS)");
+//        }
+//        if (this.passwordEncoder == null) {
+//            this.passwordEncoder = new BCryptPasswordEncoder();
+//        }
+        
         Optional<User> existing = repository.findByLogin(data.login());
         if (existing.isPresent()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Login already exists!");
@@ -57,6 +80,6 @@ public class AuthenticationController {
         User newUser = new User(data.name(), data.login(), encryptedPassword, data.role());
         User saved = repository.save(newUser);
 
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("login", saved.getLogin(),"message", saved.getName()));
     }
 }
