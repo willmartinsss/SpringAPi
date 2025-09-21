@@ -52,7 +52,6 @@ public class UserController {
 @Operation(summary = "Obter usuário por ID", description = "Retorna o usuário com base no ID fornecido, apenas se for o mesmo usuário logado")
 @GetMapping("/id")
     public ResponseEntity<?> getById(@RequestParam("id") String id) {
-        //@PathVariable String id
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentLogin = authentication.getName();
 
