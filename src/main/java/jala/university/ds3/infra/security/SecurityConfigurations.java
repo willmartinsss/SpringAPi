@@ -1,3 +1,4 @@
+// file: src/main/java/jala/university/ds3/infra/security/SecurityConfigurations.java
 package jala.university.ds3.infra.security;
 
 
@@ -26,6 +27,7 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/user").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/users/{id}").hasRole("ADMIN") // NEW RULE BL- 18
                         .anyRequest().authenticated()
                 )
                 .build();
