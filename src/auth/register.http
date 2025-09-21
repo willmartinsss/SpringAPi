@@ -1,19 +1,114 @@
+### 1. User Registration (CORRECTED)
 POST http://localhost:8080/auth/register
 Content-Type: application/json
 
 {
-  "login": "Gabrielneves",
+  "name": "Gabriel Neves",
+  "login": "gabrielneves",
   "password": "123456789",
-  "role": "Admin"
+  "role": "ADMIN"
 }
 
-###
-GET http://localhost:8080/api/item?id=
+### 2. User Login
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "login": "gabrielneves",
+  "password": "123456789"
+}
+
+### 3. Get Current User (requires JWT token)
+GET http://localhost:8080/users/currentUser
 Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJkczMtYXBpIiwic3ViIjoiR2FicmllbG5ldmVzIiwidXNlcklkIjoiNTIwN2FmZmEtNWNmOC00ZWU0LWE2OGEtM2E5ZTM1NzNhODdhIiwicm9sZSI6IkFETUlOIiwiZXhwIjoxNzU4NTAzODEwfQ.uAAtCT_dm17jVBq82L87vvSScsU2ZReYtyJcj71_4S8
 
-###
-### GET request to example server
-GET https://examples.http-client.intellij.net/get
-    ?generated-in=IntelliJ IDEA
+### 4. Get User by ID/Login (requires JWT token)
+GET http://localhost:8080/users/id?id=gabrielneves
+Accept: application/json
+Authorization: Bearer {{token}}
 
-###
+### 5. List All Users (ADMIN only)
+GET http://localhost:8080/users
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### 6. Update User (requires JWT token)
+PUT http://localhost:8080/users/gabrielneves
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Gabriel Neves Updated",
+  "password": "newpassword123"
+}
+
+### 7. Delete User (ADMIN only)
+DELETE http://localhost:8080/users/gabrielneves
+Authorization: Bearer {{token}}
+
+### 8. Swagger UI Documentation
+GET http://localhost:8080/swagger-ui.html
+
+### COMPLETE WORKFLOW EXAMPLE:
+
+### Step 1: Register User
+POST http://localhost:8080/auth/register
+Content-Type: application/json
+
+{
+  "name": "Gabriel Neves",
+  "login": "gabrielneves",
+  "password": "123456789",
+  "role": "ADMIN"
+}
+
+### Step 2: Login and Get Token
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "login": "gabrielneves",
+  "password": "123456789"
+}
+
+### Step 3: Use Token in Subsequent Requests
+### (Replace {{token}} with the JWT token returned from login)
+GET http://localhost:8080/users/currentUser
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+### TESTING DIFFERENT ROLES:
+
+### Register Regular User
+POST http://localhost:8080/auth/register
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "login": "johndoe",
+  "password": "userpass123",
+  "role": "USER"
+}
+
+### Login as Regular User
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "login": "johndoe",
+  "password": "userpass123"
+}
+
+### Try Admin Endpoint (should fail with USER role)
+GET http://localhost:8080/users
+Authorization: Bearer {{user_token}}
+
+
+### Login Legacy User
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "login": "legacy_user",
+  "password": "original_password"
+}

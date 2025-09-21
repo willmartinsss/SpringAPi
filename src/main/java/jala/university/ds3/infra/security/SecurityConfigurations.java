@@ -32,10 +32,17 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
 
-                        // Swagger/OpenAPI endpoints
+                        // Swagger/OpenAPI endpoints - IMPORTANTE!
                         .requestMatchers("/v3/api-docs/**").permitAll()
+                        .requestMatchers("/v3/api-docs.yaml").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/swagger-ui.html").permitAll()
+                        .requestMatchers("/swagger-resources/**").permitAll()
+                        .requestMatchers("/webjars/**").permitAll()
+                        .requestMatchers("/favicon.ico").permitAll()
+
+                        // Actuator endpoints (se precisar)
+                        .requestMatchers("/actuator/**").permitAll()
 
                         // User endpoints
                         .requestMatchers(HttpMethod.GET, "/users/currentUser").hasAnyRole("USER", "ADMIN")

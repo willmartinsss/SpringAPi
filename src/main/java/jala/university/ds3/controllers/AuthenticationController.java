@@ -13,16 +13,21 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.Map;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/auth")
-@Tag(name = "Authentication", description = "Endpoints de autenticação")
+@Tag(name = "Authentication", description = "Authentication endpoints")
 public class AuthenticationController {
 
     @Autowired
@@ -38,7 +43,13 @@ public class AuthenticationController {
     private TokenService tokenService;
 
     @PostMapping("/login")
-    @Operation(summary = "Login do usuário", description = "Autentica usuário e retorna JWT token")
+    @Operation(summary = "User login", description = "Authenticates user and returns JWT token")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Login successful",
+                    content = @Content(schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "401", description = "Invalid credentials",
+                    content = @Content(schema = @Schema(implementation = Map.class)))
+    })
     public ResponseEntity<?> login(@RequestBody @Valid AuthenticationDTO data) {
         try {
             var usernamePassword = new UsernamePasswordAuthenticationToken(data.login(), data.password());
@@ -63,9 +74,17 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register")
-    @Operation(summary = "Registro de usuário", description = "Cria um novo usuário no sistema")
+    @Operation(summary = "User registration", description = "Creates a new user in the system")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "User created successfully",
+                    content = @Content(schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid data",
+                    content = @Content(schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "409", description = "Login already exists",
+                    content = @Content(schema = @Schema(implementation = Map.class)))
+    })
     public ResponseEntity<?> register(@RequestBody @Valid RegisterDTO data,
-                                      org.springframework.validation.BindingResult result) {
+                                      BindingResult result) {
         if (result.hasErrors()) {
             var errors = result.getFieldErrors().stream()
                     .map(fieldError -> fieldError.getDefaultMessage())

@@ -17,7 +17,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 @RestController
 @RequestMapping("/users")
-@Tag(name = "User", description = "API para gerenciar usuários")
+@Tag(name = "User", description = "User management API")
 @SecurityRequirement(name = "bearerAuth")
 public class UserController {
 
@@ -31,7 +31,7 @@ public class UserController {
     }
 
     @GetMapping("/currentUser")
-    @Operation(summary = "Obter usuário logado", description = "Retorna os dados do usuário atualmente autenticado")
+    @Operation(summary = "Get current user", description = "Returns the currently authenticated user data")
     public ResponseEntity<?> currentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentLogin = authentication.getName();
@@ -47,8 +47,8 @@ public class UserController {
     }
 
     @GetMapping("/id")
-    @Operation(summary = "Obter usuário por ID",
-            description = "Retorna o usuário com base no ID fornecido (aceita UUID ou String)")
+    @Operation(summary = "Get user by ID",
+            description = "Returns the user based on provided ID (accepts UUID or String)")
     public ResponseEntity<?> getById(@RequestParam("id") String idParam) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentLogin = authentication.getName();
@@ -73,7 +73,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Atualizar usuário", description = "Atualiza dados do usuário (nome e senha)")
+    @Operation(summary = "Update user", description = "Updates user data (name and password)")
     public ResponseEntity<?> updateUser(@PathVariable("id") String idParam,
                                         @RequestBody User updatedUser) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -110,7 +110,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Remover usuário", description = "Remove um usuário do sistema (apenas administradores)")
+    @Operation(summary = "Delete user", description = "Removes a user from the system (administrators only)")
     public ResponseEntity<?> deleteUser(@PathVariable("id") String idParam) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentLogin = authentication.getName();
@@ -142,7 +142,7 @@ public class UserController {
     }
 
     @GetMapping
-    @Operation(summary = "Listar usuários", description = "Lista todos os usuários (apenas administradores)")
+    @Operation(summary = "List users", description = "Lists all users (administrators only)")
     public ResponseEntity<?> getAllUsers() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -162,16 +162,16 @@ public class UserController {
     }
 
     /**
-     * Método utilitário para encontrar usuário por ID flexível
-     * Aceita UUID ou String direta
+     * Utility method to find user by flexible ID
+     * Accepts UUID or direct String
      */
     private Optional<User> findUserById(String idParam) {
-        // Primeiro tenta como UUID
+        // First try as UUID
         try {
             UUID uuid = UUID.fromString(idParam);
             return userRepository.findById(uuid.toString());
         } catch (IllegalArgumentException e) {
-            // Se não for UUID válido, tenta como String direta
+            // If not valid UUID, try as direct String
             return userRepository.findById(idParam);
         }
     }

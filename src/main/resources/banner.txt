@@ -2,12 +2,12 @@
 ║                       SPRING API                       ║
 ╚════════════════════════════════════════════════════════╝
 
- 🌟✨  CIS API JAVA – SPRINGBOOT ✨🌟
+ 🌟✨  DS3 API JAVA – SPRINGBOOT ✨🌟
 
               O
              /|\
              / \
-      API de ligação com o banco de dados
-            e sistema legado
+      API connection with database
+            and legacy system
 
 ${Ansi.BLUE} :: Spring Boot${spring-boot.formatted-version} :: ${Ansi.DEFAULT}
