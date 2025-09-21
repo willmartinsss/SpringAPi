@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,6 +27,28 @@ public class UserController {
     public UserController(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
+
+    // Criar novo usuário
+@PostMapping
+public ResponseEntity<?> createUser(@RequestBody User newUser) {
+    // Verifica se já existe login no banco
+    if (userRepository.findByLogin(newUser.getLogin()).isPresent()) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body("Login já existe!");
+    }
+
+    // Se o ID não vier no JSON, gera um UUID automaticamente
+    if (newUser.getId() == null) {
+        newUser.setId(UUID.randomUUID());
+    }
+
+
+    // Salva o usuário no MySQL usando o UserRepository
+    User savedUser = userRepository.save(newUser);
+
+    // Retorna status 201 (Created) e o usuário salvo
+    return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+}
+
 
     @GetMapping("/currentUser")
     public ResponseEntity<?> currentUser() {
@@ -63,7 +86,7 @@ public class UserController {
         }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found in data!"));
     }
 
-     // 🔹 Novo endpoint para atualização/Add validation to ensure that only the user themselves (or an administrator) can update their data./ pode atualizar nome e senha 
+     
     @PutMapping("/{id}")
     public ResponseEntity<?> updateUser(@PathVariable("id") UUID id,
                                         @RequestBody User updatedUser) {
