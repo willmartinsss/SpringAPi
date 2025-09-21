@@ -21,12 +21,36 @@ class AuthServiceTest {
     private AuthService authService;
     private AuthenticationManager authManager;
     private UserRepository userRepository;
+    private TokenService tokenService;
 
     @BeforeEach
     void setUp() {
         authManager = mock(AuthenticationManager.class);
         userRepository = mock(UserRepository.class);
-        authService = new AuthService(authManager, userRepository);
+        tokenService = mock(TokenService.class);
+
+        // Para usar esta versão, você precisaria modificar AuthService para ter um construtor:
+        // authService = new AuthService(authManager, userRepository, tokenService);
+
+        // Como alternativa, vamos usar a versão com reflection da primeira solução
+        authService = new AuthService();
+
+        // Injeção manual das dependências
+        try {
+            var authManagerField = AuthService.class.getDeclaredField("authenticationManager");
+            authManagerField.setAccessible(true);
+            authManagerField.set(authService, authManager);
+
+            var userRepoField = AuthService.class.getDeclaredField("userRepository");
+            userRepoField.setAccessible(true);
+            userRepoField.set(authService, userRepository);
+
+            var tokenServiceField = AuthService.class.getDeclaredField("tokenService");
+            tokenServiceField.setAccessible(true);
+            tokenServiceField.set(authService, tokenService);
+        } catch (Exception e) {
+            fail("Could not inject dependencies: " + e.getMessage());
+        }
     }
 
     @Test
@@ -35,6 +59,7 @@ class AuthServiceTest {
         // Given
         User user = new User("Admin", "admin", "encrypted", UserRole.ADMIN);
         when(userRepository.findByLogin("admin")).thenReturn(Optional.of(user));
+        when(tokenService.generateToken(user)).thenReturn("valid-jwt-token");
         doNothing().when(authManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
 
         // When
@@ -42,6 +67,7 @@ class AuthServiceTest {
 
         // Then
         assertNotNull(token);
+        assertEquals("valid-jwt-token", token);
     }
 
     @Test
@@ -56,7 +82,7 @@ class AuthServiceTest {
     @Test
     @DisplayName("Should throw exception with invalid password")
     void testAuthenticateInvalidPassword() throws AuthenticationException {
-        doThrow(AuthenticationException.class)
+        doThrow(new AuthenticationException("Bad credentials") {})
                 .when(authManager)
                 .authenticate(any(UsernamePasswordAuthenticationToken.class));
 
@@ -66,7 +92,8 @@ class AuthServiceTest {
     @Test
     @DisplayName("Should throw exception with null credentials")
     void testAuthenticateNullCredentials() throws AuthenticationException {
-        doThrow(AuthenticationException.class).when(authManager).authenticate(any());
+        doThrow(new AuthenticationException("Null credentials") {})
+                .when(authManager).authenticate(any());
 
         assertThrows(AuthenticationException.class, () -> authService.authenticate(null, null));
     }
@@ -74,7 +101,8 @@ class AuthServiceTest {
     @Test
     @DisplayName("Should throw exception with empty credentials")
     void testAuthenticateEmptyCredentials() throws AuthenticationException {
-        doThrow(AuthenticationException.class).when(authManager).authenticate(any());
+        doThrow(new AuthenticationException("Empty credentials") {})
+                .when(authManager).authenticate(any());
 
         assertThrows(AuthenticationException.class, () -> authService.authenticate("", ""));
     }
@@ -82,7 +110,8 @@ class AuthServiceTest {
     @Test
     @DisplayName("Should be case sensitive for username")
     void testAuthenticateCaseSensitiveUsername() throws AuthenticationException {
-        doThrow(AuthenticationException.class).when(authManager).authenticate(any());
+        doThrow(new AuthenticationException("Case sensitive error") {})
+                .when(authManager).authenticate(any());
 
         assertThrows(AuthenticationException.class, () -> authService.authenticate("ADMIN", "password"));
     }
@@ -90,7 +119,8 @@ class AuthServiceTest {
     @Test
     @DisplayName("Should be case sensitive for password")
     void testAuthenticateCaseSensitivePassword() throws AuthenticationException {
-        doThrow(AuthenticationException.class).when(authManager).authenticate(any());
+        doThrow(new AuthenticationException("Case sensitive error") {})
+                .when(authManager).authenticate(any());
 
         assertThrows(AuthenticationException.class, () -> authService.authenticate("admin", "PASSWORD"));
     }
