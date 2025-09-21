@@ -44,7 +44,7 @@ public class UserController {
         }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found in data!"));
     }
 
-    //  User Deletion
+    // START: Code for User Deletion
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteUser(@PathVariable String id) {
@@ -55,5 +55,5 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found!");
         }
     }
-    //  User Deletion
+    // END: Code for User Deletion
 }
