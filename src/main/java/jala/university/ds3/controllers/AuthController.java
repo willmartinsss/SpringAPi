@@ -1,4 +1,4 @@
-package jala.university.ds3.controller;
+package jala.university.ds3.controllers;
 
 import jala.university.ds3.service.AuthService;
 import jala.university.ds3.dto.AuthResponse;
