@@ -1,8 +1,9 @@
-# .gitlab-ci.yml - Com H2 para testes
+# .gitlab-ci.yml - Versão corrigida
 image: openjdk:17
 
 variables:
   MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
+  MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version"
 
 cache:
   paths:
@@ -11,22 +12,29 @@ cache:
 stages:
   - build
   - test
+  - package
 
+# Stage de build
 build:
   stage: build
   script:
     - echo "🏗️ Building application..."
     - chmod +x mvnw
-    - ./mvnw clean compile -B
+    - ./mvnw clean compile $MAVEN_CLI_OPTS
     - echo "✅ Build completed!"
+  artifacts:
+    paths:
+      - target/classes/
+    expire_in: 1 hour
 
+# Stage de test
 test:
   stage: test
   script:
     - echo "🧪 Running tests with H2 database..."
     - chmod +x mvnw
-    # Use H2 database for tests (no external MySQL needed)
-    - ./mvnw test -B -Dspring.datasource.url=jdbc:h2:mem:testdb -Dspring.datasource.driver-class-name=org.h2.Driver -Dspring.jpa.hibernate.ddl-auto=create-drop
+    # Usar profile específico para CI
+    - ./mvnw test $MAVEN_CLI_OPTS -Dspring.profiles.active=ci
     - echo "✅ Tests completed!"
   artifacts:
     when: always
@@ -35,17 +43,21 @@ test:
     paths:
       - target/surefire-reports/
     expire_in: 1 week
-  allow_failure: true
+  dependencies:
+    - build
 
+# Stage de package (movido para stage separado)
 package:
-  stage: test
+  stage: package
   script:
     - echo "📦 Creating final package..."
     - chmod +x mvnw
-    - ./mvnw clean package -DskipTests -B
+    - ./mvnw clean package -DskipTests $MAVEN_CLI_OPTS
     - echo "✅ Package created!"
     - ls -la target/*.jar
   artifacts:
     paths:
       - target/*.jar
     expire_in: 1 week
+  dependencies:
+    - test
