@@ -1,4 +1,4 @@
-package jala.university.ds3.services;
+package jala.university.ds3.service;
 
 
 import jala.university.ds3.repositories.UserRepository;
