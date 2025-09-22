@@ -13,50 +13,39 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@Entity
-@Table(name = "users")
+@Data // Gera automaticamente metodos na classe, como get, set hashcode, entre outros.
+@Builder // Implementa o padrão Builder, para facilitar a criação de objetos mais complexos
+@NoArgsConstructor // Cria automaticamente construtores vazios
+@AllArgsConstructor // Cria automaticamente um construtor com todos os parametros
+@Entity // para informar que a classe é uma entidade do baco de dados
+@Table (name = "users")
 public class User implements UserDetails {
 
-    @Id
-    @Column(name = "id", length = 36)
-    private String id;
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
     private String name;
+
     private String login;
+
     private String password;
 
-    @Enumerated(EnumType.STRING)
     private UserRole role;
 
+
     public User(String name, String login, String encryptedPassword, UserRole role) {
-        this.id = UUID.randomUUID().toString();
         this.name = name;
         this.login = login;
         this.password = encryptedPassword;
         this.role = role;
     }
 
-    @PrePersist
-    public void generateId() {
-        if (this.id == null) {
-            this.id = UUID.randomUUID().toString();
-        }
-    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if(this.role == UserRole.ADMIN) {
-            return List.of(
-                    new SimpleGrantedAuthority("ROLE_ADMIN"),
-                    new SimpleGrantedAuthority("ROLE_USER")
-            );
-        } else {
-            return List.of(new SimpleGrantedAuthority("ROLE_USER"));
-        }
+        if(this.role == UserRole.ADMIN) return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_USER"));
+        else return List.of(new SimpleGrantedAuthority("ROLE_USER"));
     }
 
     @Override
@@ -66,21 +55,21 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return true;
+        return UserDetails.super.isAccountNonExpired();
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return UserDetails.super.isAccountNonLocked();
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return true;
+        return UserDetails.super.isCredentialsNonExpired();
     }
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return UserDetails.super.isEnabled();
     }
 }

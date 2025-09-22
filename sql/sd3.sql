@@ -1,4 +1,4 @@
-# create schema sd3;
+create schema sd3;
 use
 sd3;
 

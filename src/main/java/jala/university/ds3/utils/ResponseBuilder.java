@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.Map;
 
-@Component("appResponseBuilder")
+@Component
 public class ResponseBuilder {
 
     public ResponseEntity<?> buildResponse(String message, HttpStatus status) {
