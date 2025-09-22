@@ -30,28 +30,6 @@ public class UserController {
         this.userService = userService;
     }
 
-    // Criar novo usuário
-@PostMapping
-public ResponseEntity<?> createUser(@RequestBody User newUser) {
-    // Verifica se já existe login no banco
-    if (userRepository.findByLogin(newUser.getLogin()).isPresent()) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body("Login já existe!");
-    }
-
-    // Se o ID não vier no JSON, gera um UUID automaticamente
-    if (newUser.getId() == null) {
-        newUser.setId(UUID.randomUUID());
-    }
-
-
-    // Salva o usuário no MySQL usando o UserRepository
-    User savedUser = userRepository.save(newUser);
-
-    // Retorna status 201 (Created) e o usuário salvo
-    return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
-}
-
-
     @GetMapping("/currentUser")
     @Operation(summary = "Get current user", description = "Returns the currently authenticated user data")
     public ResponseEntity<?> currentUser() {
