@@ -1,7 +1,6 @@
 package jala.university.ds3.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jala.university.ds3.controllers.AuthController;
 import jala.university.ds3.service.AuthService;
 import jala.university.ds3.dto.LoginRequest;
 import org.junit.jupiter.api.Test;
