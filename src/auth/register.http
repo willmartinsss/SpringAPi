@@ -26,7 +26,8 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJkczMtYXBpI
 ### 4. Get User by ID/Login (requires JWT token)
 GET http://localhost:8080/users/id?id=gabrielneves
 Accept: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJkczMtYXBpIiwic3ViIjoiR2FicmllbG5ldmVzIiwidXNlcklkIjoiNTIwN2FmZmEtNWNmOC00ZWU0LWE2OGEtM2E5ZTM1NzNhODdhIiwicm9sZSI6IkFETUlOIiwiZXhwIjoxNzU4NTAzODEwfQ.uAAtCT_dm17jVBq82L87vvSScsU2ZReYtyJcj71_4S8
+
 
 ### 5. List All Users (ADMIN only)
 GET http://localhost:8080/users
@@ -36,7 +37,8 @@ Authorization: Bearer {{token}}
 ### 6. Update User (requires JWT token)
 PUT http://localhost:8080/users/gabrielneves
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJkczMtYXBpIiwic3ViIjoiR2FicmllbG5ldmVzIiwidXNlcklkIjoiNTIwN2FmZmEtNWNmOC00ZWU0LWE2OGEtM2E5ZTM1NzNhODdhIiwicm9sZSI6IkFETUlOIiwiZXhwIjoxNzU4NTAzODEwfQ.uAAtCT_dm17jVBq82L87vvSScsU2ZReYtyJcj71_4S8
+
 
 {
   "name": "Gabriel Neves Updated",
