@@ -41,7 +41,6 @@ public class SecurityConfigurations {
                         .requestMatchers("/webjars/**").permitAll()
                         .requestMatchers("/favicon.ico").permitAll()
 
-                        // Actuator endpoints (se precisar)
                         .requestMatchers("/actuator/**").permitAll()
 
                         // User endpoints

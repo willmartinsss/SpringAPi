@@ -3,10 +3,10 @@ POST http://localhost:8080/auth/register
 Content-Type: application/json
 
 {
-  "name": "Gabriel Neves",
-  "login": "gabrielneves",
+  "name": "Otaviano Neto",
+  "login": "OtavianoNt",
   "password": "123456789",
-  "role": "ADMIN"
+  "role": "USER"
 }
 
 ### 2. User Login
@@ -14,30 +14,30 @@ POST http://localhost:8080/auth/login
 Content-Type: application/json
 
 {
-  "login": "gabrielneves",
+  "login": "OtavianoNt",
   "password": "123456789"
 }
 
 ### 3. Get Current User (requires JWT token)
 GET http://localhost:8080/users/currentUser
 Accept: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJkczMtYXBpIiwic3ViIjoiR2FicmllbG5ldmVzIiwidXNlcklkIjoiNTIwN2FmZmEtNWNmOC00ZWU0LWE2OGEtM2E5ZTM1NzNhODdhIiwicm9sZSI6IkFETUlOIiwiZXhwIjoxNzU4NTAzODEwfQ.uAAtCT_dm17jVBq82L87vvSScsU2ZReYtyJcj71_4S8
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJkczMtYXBpIiwic3ViIjoiR2FicmllbG5ldmVzIiwidXNlcklkIjoiNTIwN2FmZmEtNWNmOC00ZWU0LWE2OGEtM2E5ZTM1NzNhODdhIiwicm9sZSI6IkFETUlOIiwiZXhwIjoxNzU4NjAyODMxfQ.PQF_7JPvtTnOgl5HcqEt8Krdh7SqsP_wuE2ksTHKJbE
 
 ### 4. Get User by ID/Login (requires JWT token)
 GET http://localhost:8080/users/id?id=gabrielneves
 Accept: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJkczMtYXBpIiwic3ViIjoiR2FicmllbG5ldmVzIiwidXNlcklkIjoiNTIwN2FmZmEtNWNmOC00ZWU0LWE2OGEtM2E5ZTM1NzNhODdhIiwicm9sZSI6IkFETUlOIiwiZXhwIjoxNzU4NTAzODEwfQ.uAAtCT_dm17jVBq82L87vvSScsU2ZReYtyJcj71_4S8
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJkczMtYXBpIiwic3ViIjoiT3Rhdmlhbm9OdCIsInVzZXJJZCI6IjlhZjdiMDlkLWI2MjEtNGZmOS04ZGZkLWZiNjk3NmU4NTM4OCIsInJvbGUiOiJBRE1JTiIsImV4cCI6MTc1ODc4MzI5NX0.T3_gJ4dyXUBAIA72YvNsTiGwpAsPAw7OAO403QfCIf4
 
 
 ### 5. List All Users (ADMIN only)
 GET http://localhost:8080/users
 Accept: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJkczMtYXBpIiwic3ViIjoiT3Rhdmlhbm9OdCIsInVzZXJJZCI6IjlhZjdiMDlkLWI2MjEtNGZmOS04ZGZkLWZiNjk3NmU4NTM4OCIsInJvbGUiOiJBRE1JTiIsImV4cCI6MTc1ODc4MzI5NX0.T3_gJ4dyXUBAIA72YvNsTiGwpAsPAw7OAO403QfCIf4
 
 ### 6. Update User (requires JWT token)
-PUT http://localhost:8080/users/gabrielneves
+PUT http://localhost:8080/users/OtavianoNt
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJkczMtYXBpIiwic3ViIjoiR2FicmllbG5ldmVzIiwidXNlcklkIjoiNTIwN2FmZmEtNWNmOC00ZWU0LWE2OGEtM2E5ZTM1NzNhODdhIiwicm9sZSI6IkFETUlOIiwiZXhwIjoxNzU4NTAzODEwfQ.uAAtCT_dm17jVBq82L87vvSScsU2ZReYtyJcj71_4S8
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJkczMtYXBpIiwic3ViIjoiT3Rhdmlhbm9OdCIsInVzZXJJZCI6IjlhZjdiMDlkLWI2MjEtNGZmOS04ZGZkLWZiNjk3NmU4NTM4OCIsInJvbGUiOiJBRE1JTiIsImV4cCI6MTc1ODY1MzEzNH0.uOcq7f1xV8cC2Hna_rNx9ND5sytIFqasurpLsKQYRNw
 
 
 {
@@ -46,8 +46,8 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJkczMtYXBpI
 }
 
 ### 7. Delete User (ADMIN only)
-DELETE http://localhost:8080/users/gabrielneves
-Authorization: Bearer {{token}}
+DELETE http://localhost:8080/users/9af7b09d-b621-4ff9-8dfd-fb6976e85388
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJkczMtYXBpIiwic3ViIjoiT3Rhdmlhbm9OdCIsInVzZXJJZCI6IjlhZjdiMDlkLWI2MjEtNGZmOS04ZGZkLWZiNjk3NmU4NTM4OCIsInJvbGUiOiJBRE1JTiIsImV4cCI6MTc1ODY1MzEzNH0.uOcq7f1xV8cC2Hna_rNx9ND5sytIFqasurpLsKQYRNw
 
 ### 8. Swagger UI Documentation
 GET http://localhost:8080/swagger-ui.html
@@ -105,12 +105,3 @@ Content-Type: application/json
 GET http://localhost:8080/users
 Authorization: Bearer {{user_token}}
 
-
-### Login Legacy User
-POST http://localhost:8080/auth/login
-Content-Type: application/json
-
-{
-  "login": "legacy_user",
-  "password": "original_password"
-}
