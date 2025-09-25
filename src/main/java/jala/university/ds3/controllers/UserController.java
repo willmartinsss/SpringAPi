@@ -11,14 +11,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 @RestController
 @RequestMapping("/users")
-@Tag(name = "User", description = "User management API")
-@SecurityRequirement(name = "bearerAuth")
+@Tag(name = "User Management", description = "User CRUD operations")
 public class UserController {
 
     private final UserRepository userRepository;
@@ -32,160 +33,180 @@ public class UserController {
 
     @GetMapping("/currentUser")
     @Operation(summary = "Get current user", description = "Returns the currently authenticated user data")
+    @SecurityRequirement(name = "bearerAuth")
+    @ApiResponse(responseCode = "200", description = "User found")
+    @ApiResponse(responseCode = "401", description = "Unauthorized")
     public ResponseEntity<?> currentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentLogin = authentication.getName();
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String currentLogin = authentication.getName();
 
-        Optional<User> userOptional = userRepository.findByLogin(currentLogin);
+            Optional<User> userOptional = userRepository.findByLogin(currentLogin);
 
-        if (userOptional.isPresent()) {
-            User safeUser = createSafeUser(userOptional.get());
-            return ResponseEntity.ok(safeUser);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            if (userOptional.isPresent()) {
+                User safeUser = createSafeUser(userOptional.get());
+                return ResponseEntity.ok(safeUser);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error: " + e.getMessage());
         }
     }
 
     @GetMapping("/id")
-    @Operation(summary = "Get user by ID",
-            description = "Returns the user based on provided ID (accepts UUID or String)")
+    @Operation(summary = "Get user by ID")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<?> getById(@RequestParam("id") String idParam) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentLogin = authentication.getName();
-
-        boolean isAdmin = authentication.getAuthorities().stream()
-                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
-
-        Optional<User> userOptional = findUserById(idParam);
-
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-
-            if (!user.getLogin().equals(currentLogin) && !isAdmin) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
-            }
-
-            User safeUser = createSafeUser(user);
-            return ResponseEntity.ok(safeUser);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-        }
-    }
-
-    @PutMapping("/{id}")
-    @Operation(summary = "Update user", description = "Updates user data (name and password)")
-    public ResponseEntity<?> updateUser(@PathVariable("id") String idParam,
-                                        @RequestBody User updatedUser) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentLogin = authentication.getName();
-
-        Optional<User> userOptional = findUserById(idParam);
-
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String currentLogin = authentication.getName();
 
             boolean isAdmin = authentication.getAuthorities().stream()
                     .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
 
-            if (!user.getLogin().equals(currentLogin) && !isAdmin) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
+            Optional<User> userOptional = findUserById(idParam);
+
+            if (userOptional.isPresent()) {
+                User user = userOptional.get();
+
+                if (!user.getLogin().equals(currentLogin) && !isAdmin) {
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
+                }
+
+                User safeUser = createSafeUser(user);
+                return ResponseEntity.ok(safeUser);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
             }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error: " + e.getMessage());
+        }
+    }
 
-            // Update allowed fields only
-            if (updatedUser.getName() != null && !updatedUser.getName().trim().isEmpty()) {
-                user.setName(updatedUser.getName().trim());
+    @PutMapping("/{id}")
+    @Operation(summary = "Update user")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<?> updateUser(@PathVariable("id") String idParam,
+                                        @RequestBody User updatedUser) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String currentLogin = authentication.getName();
+
+            Optional<User> userOptional = findUserById(idParam);
+
+            if (userOptional.isPresent()) {
+                User user = userOptional.get();
+
+                boolean isAdmin = authentication.getAuthorities().stream()
+                        .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+
+                if (!user.getLogin().equals(currentLogin) && !isAdmin) {
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
+                }
+
+                if (updatedUser.getName() != null && !updatedUser.getName().trim().isEmpty()) {
+                    user.setName(updatedUser.getName().trim());
+                }
+
+                if (updatedUser.getPassword() != null && !updatedUser.getPassword().trim().isEmpty()) {
+                    user.setPassword(updatedUser.getPassword());
+                }
+
+                User savedUser = userRepository.save(user);
+                User safeUser = createSafeUser(savedUser);
+
+                return ResponseEntity.ok(safeUser);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
             }
-
-            if (updatedUser.getPassword() != null && !updatedUser.getPassword().trim().isEmpty()) {
-                user.setPassword(updatedUser.getPassword());
-            }
-
-            User savedUser = userRepository.save(user);
-            User safeUser = createSafeUser(savedUser);
-
-            return ResponseEntity.ok(safeUser);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error: " + e.getMessage());
         }
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Delete user", description = "Removes a user from the system (administrators only)")
+    @Operation(summary = "Delete user")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<?> deleteUser(@PathVariable("id") String idParam) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentLogin = authentication.getName();
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String currentLogin = authentication.getName();
 
-        boolean isAdmin = authentication.getAuthorities().stream()
-                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+            boolean isAdmin = authentication.getAuthorities().stream()
+                    .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
 
-        if (!isAdmin) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("Only administrators can delete users");
-        }
-
-        Optional<User> userOptional = findUserById(idParam);
-
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-
-            if (user.getLogin().equals(currentLogin)) {
-                return ResponseEntity.status(HttpStatus.CONFLICT)
-                        .body("Cannot delete your own account");
+            if (!isAdmin) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("Only administrators can delete users");
             }
 
-            userRepository.delete(user);
-            return ResponseEntity.ok()
-                    .body("User with login '" + user.getLogin() + "' has been deleted");
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            Optional<User> userOptional = findUserById(idParam);
+
+            if (userOptional.isPresent()) {
+                User user = userOptional.get();
+
+                if (user.getLogin().equals(currentLogin)) {
+                    return ResponseEntity.status(HttpStatus.CONFLICT)
+                            .body("Cannot delete your own account");
+                }
+
+                userRepository.delete(user);
+                return ResponseEntity.ok()
+                        .body("User with login '" + user.getLogin() + "' has been deleted");
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error: " + e.getMessage());
         }
     }
 
     @GetMapping
-    @Operation(summary = "List users", description = "Lists all users (administrators only)")
+    @Operation(summary = "List users")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<?> getAllUsers() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        boolean isAdmin = authentication.getAuthorities().stream()
-                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+            boolean isAdmin = authentication.getAuthorities().stream()
+                    .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
 
-        if (!isAdmin) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("Only administrators can list all users");
+            if (!isAdmin) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("Only administrators can list all users");
+            }
+
+            return ResponseEntity.ok(
+                    userRepository.findAll().stream()
+                            .map(this::createSafeUser)
+                            .toList()
+            );
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error: " + e.getMessage());
         }
-
-        return ResponseEntity.ok(
-                userRepository.findAll().stream()
-                        .map(this::createSafeUser)
-                        .toList()
-        );
     }
 
-    /**
-     * Utility method to find user by flexible ID
-     * Accepts UUID or direct String
-     */
     private Optional<User> findUserById(String idParam) {
-        // First try as UUID
         try {
             UUID uuid = UUID.fromString(idParam);
             return userRepository.findById(uuid.toString());
         } catch (IllegalArgumentException e) {
-            // If not valid UUID, try as direct String
             return userRepository.findById(idParam);
         }
     }
 
-    /**
-     * Creates a safe copy of user without sensitive information
-     */
     private User createSafeUser(User user) {
         User safeUser = new User();
         safeUser.setId(user.getId());
         safeUser.setName(user.getName());
         safeUser.setLogin(user.getLogin());
         safeUser.setRole(user.getRole());
-        // Password is intentionally not set (remains null)
         return safeUser;
     }
 }

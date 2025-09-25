@@ -19,13 +19,14 @@ public class ResponseBuilder {
     }
 
     public ResponseEntity<Map<String, Object>> build(String message, HttpStatus status, String path) {
-        Map<String, Object> search = new HashMap<>();
-        search.put("message", message);
-        search.put("path", path);
-        search.put("status", status.value());
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", message);
+        response.put("status", status.value());
+        if (path != null) {
+            response.put("path", path);
+        }
 
-        return new ResponseEntity<>(search, status);
-        //return new ResponseEntity.status(status).search(search);
+        return new ResponseEntity<>(response, status);
     }
 
     public ResponseEntity<Map<String, Object>> build(String message, HttpStatus status) {
